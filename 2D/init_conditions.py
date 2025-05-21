@@ -1,5 +1,4 @@
 from taichi_utils import *
-from single_vortex import vortex_vel_func_point, dvxdx, dvxdy, dvydx, dvydy
 
 # single vortex fields
 @ti.func
@@ -191,16 +190,6 @@ def init_particles_imp(particles_imp: ti.template(), particles_init_imp: ti.temp
         particles_init_imp[i] = particles_imp[i]
 
 @ti.kernel
-def init_particles_imp_th(particles_imp: ti.template(), particles_init_imp: ti.template(), particles_pos: ti.template(),
-                       u_x: ti.template(), u_y: ti.template(),
-                       C_x: ti.template(), C_y: ti.template(), dx: float):
-    for i in particles_imp:
-        particles_imp[i] = vortex_vel_func_point(particles_pos[i])
-        # C_x[i] = new_C_x
-        # C_y[i] = new_C_y
-        particles_init_imp[i] = particles_imp[i]
-
-@ti.kernel
 def init_particles_imp_grad_m(particles_imp: ti.template(), particles_pos: ti.template(),
                                 u_x: ti.template(), u_y: ti.template(),
                                 C_x: ti.template(), C_y: ti.template(), dx: float):
@@ -208,15 +197,6 @@ def init_particles_imp_grad_m(particles_imp: ti.template(), particles_pos: ti.te
         particles_imp[i], _, new_C_x, new_C_y = interp_u_MAC_grad_imp(u_x, u_y, particles_pos[i], dx)
         C_x[i] = new_C_x
         C_y[i] = new_C_y
-
-@ti.kernel
-def init_particles_imp_grad_m_th(particles_imp: ti.template(), particles_pos: ti.template(),
-                                u_x: ti.template(), u_y: ti.template(),
-                                C_x: ti.template(), C_y: ti.template(), dx: float):
-    for i in particles_imp:
-        particles_imp[i] = vortex_vel_func_point(particles_pos[i])
-        C_x[i] = ti.Vector([dvxdx(particles_pos[i]), dvxdy(particles_pos[i])])
-        C_y[i] = ti.Vector([dvydx(particles_pos[i]), dvydy(particles_pos[i])])
 
 @ti.kernel
 def init_particles_imp_one_step(particles_imp: ti.template(), particles_pos: ti.template(),
